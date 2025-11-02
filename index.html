@@ -6,68 +6,236 @@
   <title>AI Neurology Consult Tool</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
   <style>
-    :root{
-      --bg:#111827;      /* gray-900 */
-      --panel:#1F2937;   /* gray-800 */
-      --border:#374151;  /* gray-700 */
-      --ink:#E5E7EB;     /* zinc-200 */
-      --brand:#3B82F6;   /* blue-500 */
-      --brand-2:#2563EB; /* blue-600 */
-      --ink-weak:#9CA3AF;/* gray-400 */
-      --panel-deeper:#0B1220;
+    :root {
+      --bg:#0f172a;           /* Deep gray-blue background */
+      --panel:#1a2233;        /* Slightly darker for contrast */
+      --panel-deeper:#0b1220; /* Deepest layer for inputs */
+      --border:#374151;       /* Neutral border */
+      --ink:#f4f4f5;          /* Light text */
+      --ink-weak:#a8b2c1;     /* Muted text */
+      --brand:#3B82F6;        /* Blue-500 */
+      --brand-2:#2563EB;      /* Blue-600 */
+
+      /* spacing and radius */
+      --radius:.75rem;
+      --space-xs:.25rem;
+      --space-sm:.5rem;
+      --space-md:1rem;
+      --space-lg:1.5rem;
     }
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);}
-    h1,h2,h3,h4,summary,button{font-family:'Roboto Condensed',sans-serif;letter-spacing:.5px}
-    .hidden{display:none}
-    .panel{background:var(--panel);border:1px solid var(--border);border-radius:.75rem;box-shadow:0 1px 2px rgba(0,0,0,.25)}
-    .btn{font-weight:600;padding:.75rem 1.25rem;border-radius:.5rem;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:.15s transform;outline:0}
-    .btn:hover{transform:translateY(-2px)}
-    .btn-primary{background:var(--brand-2);color:#fff}
-    .btn-primary:hover{background:var(--brand)}
-    .btn-secondary{background:transparent;color:#93C5FD;border:1px solid var(--brand)}
-    .btn-secondary:hover{background:var(--brand);color:#fff}
-    .btn-back{background:#374151;color:#fff}
-    .btn-back:hover{background:#4B5563}
-    .error-box{display:none;background:rgba(239,68,68,.15);border:1px solid #DC2626;color:#FCA5A5;padding:1rem;border-radius:.5rem;margin-bottom:1rem}
-    .spinner{border:4px solid rgba(255,255,255,.1);width:36px;height:36px;border-radius:50%;border-left-color:var(--brand);animation:spin 1s ease infinite}
-    @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
-    details>summary{cursor:pointer}
 
-    /* Inputs */
-    .input{
-      width:100%;padding:.6rem .75rem;border:1px solid var(--border);border-radius:.5rem;
-      background:var(--panel-deeper); color:#F9FAFB;
+    html { scroll-behavior:smooth; }
+
+    * {
+      transition: background .2s ease, border-color .2s ease, color .2s ease, transform .15s ease;
     }
-    .input:focus{outline:none;box-shadow:0 0 0 2px var(--brand)}
-    textarea.input::placeholder, input.input::placeholder{color:var(--ink-weak)}
 
-    /* Option cards */
-    .card-option{border:2px solid var(--border);border-radius:1rem;padding:1rem;cursor:pointer;transition:.12s;user-select:none;background:var(--panel)}
-    .card-option:hover{border-color:#60A5FA}
-    .card-option.selected{border-color:#60A5FA;background:#0B1220}
+    body {
+      font-family:'Inter',sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+      line-height:1.6;
+      margin:0;
+      font-size:15.5px;
+    }
 
-    /* Consult visuals */
-    #consult-output h3{font-size:1.125rem;font-weight:700;color:#93C5FD;margin:.75rem 0 .5rem}
-    #consult-output strong{color:#F3F4F6}
-    .rec-checkbox{width:26px;height:26px;transform:translateY(3px)}
-    .rec-row{padding:14px;border-radius:.75rem;border:1px solid var(--border);margin-bottom:.5rem;background:#0f172a}
-    .rec-row:hover{background:#0c1426}
+    h1,h2,h3,h4,summary,button {
+      font-family:'Roboto Condensed',sans-serif;
+      letter-spacing:.5px;
+      line-height:1.25;
+    }
 
-    .hloc{padding:.75rem 1rem;border-radius:.75rem;border:1px solid var(--border);margin:.75rem 0}
-    .hloc.alert{background:rgba(239,68,68,.18);border-color:#DC2626}
-    .hloc.ok{background:rgba(16,185,129,.12);border-color:#10B981}
+    h1 { font-size:2rem; }
+    h2 { font-size:1.5rem; }
+    h3 { font-size:1.25rem; }
 
-    .safeharbor{background:rgba(239,68,68,.12);border-color:#DC2626}
-    .safeharbor .hd{color:#FCA5A5}
-    .safeharbor li{color:#FCA5A5}
+    .hidden { display:none }
+
+    /* ===== Panels ===== */
+    .panel {
+      background:linear-gradient(180deg, rgba(31,41,55,0.95) 0%, rgba(17,24,39,0.98) 100%);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:0 2px 8px rgba(0,0,0,.25);
+      backdrop-filter:blur(6px);
+    }
+
+    /* ===== Buttons ===== */
+    .btn {
+      font-weight:600;
+      padding:.75rem 1.25rem;
+      border-radius:.5rem;
+      box-shadow:0 1px 2px rgba(0,0,0,.25);
+      transition:.15s transform;
+      outline:0;
+      cursor:pointer;
+    }
+    .btn:hover { transform:translateY(-2px) }
+    .btn:focus { outline:2px solid var(--brand); outline-offset:2px; }
+
+    .btn-primary {
+      background:linear-gradient(to right, var(--brand-2), var(--brand));
+      color:#fff;
+    }
+    .btn-primary:hover,
+    .btn-primary:focus {
+      background:var(--brand);
+    }
+
+    .btn-secondary {
+      background:transparent;
+      color:#BFDBFE;
+      border:1px solid var(--brand);
+    }
+    .btn-secondary:hover,
+    .btn-secondary:focus {
+      background:var(--brand);
+      color:#fff;
+    }
+
+    .btn-back {
+      background:#374151;
+      color:#fff;
+    }
+    .btn-back:hover,
+    .btn-back:focus {
+      background:#4B5563;
+    }
+
+    /* ===== Errors ===== */
+    .error-box {
+      display:none;
+      background:rgba(239,68,68,.15);
+      border:1px solid #DC2626;
+      color:#FCA5A5;
+      padding:1rem;
+      border-radius:.5rem;
+      margin-bottom:1rem;
+    }
+
+    /* ===== Spinner ===== */
+    .spinner {
+      border:4px solid rgba(255,255,255,.1);
+      border-top-color:var(--brand);
+      width:40px;
+      height:40px;
+      border-radius:50%;
+      animation:spin .9s linear infinite;
+    }
+    @keyframes spin { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
+
+    /* ===== Inputs ===== */
+    .input {
+      width:100%;
+      padding:.6rem .75rem;
+      border:1px solid var(--border);
+      border-radius:.6rem;
+      background:var(--panel-deeper);
+      color:#F9FAFB;
+      transition:border-color .2s, box-shadow .2s;
+      box-shadow:inset 0 1px 3px rgba(0,0,0,0.5);
+    }
+    .input:hover { border-color:var(--brand); }
+    .input:focus { outline:none; box-shadow:0 0 0 2px var(--brand); }
+    textarea.input::placeholder, input.input::placeholder { color:var(--ink-weak); }
+
+    /* ===== Option Cards ===== */
+    .card-option {
+      border:2px solid var(--border);
+      border-radius:1rem;
+      padding:1rem;
+      cursor:pointer;
+      transition:.12s;
+      user-select:none;
+      background:var(--panel);
+    }
+    .card-option:hover { border-color:#60A5FA; }
+    .card-option.selected {
+      border-color:#60A5FA;
+      background:#0B1220;
+    }
+
+    /* ===== Consult Visuals ===== */
+    #consult-output h3 {
+      font-size:1.125rem;
+      font-weight:700;
+      color:#93C5FD;
+      margin:.75rem 0 .5rem;
+    }
+    #consult-output strong { color:#F3F4F6; }
+    .rec-checkbox { width:26px; height:26px; transform:translateY(3px); }
+    .rec-row {
+      padding:14px;
+      border-radius:.75rem;
+      border:1px solid var(--border);
+      margin-bottom:.5rem;
+      background:#0f172a;
+    }
+    .rec-row:hover { background:#0c1426; }
+
+    .hloc {
+      padding:.75rem 1rem;
+      border-radius:.75rem;
+      border:1px solid var(--border);
+      margin:.75rem 0;
+    }
+    .hloc.alert {
+      background:rgba(239,68,68,.18);
+      border-color:#DC2626;
+    }
+    .hloc.ok {
+      background:rgba(16,185,129,.12);
+      border-color:#10B981;
+    }
+
+    /* ===== Safe Harbor ===== */
+    details>summary { cursor:pointer; position:relative; }
+    details summary::after {
+      content:"▼";
+      float:right;
+      color:var(--ink-weak);
+    }
+    details[open] summary::after { content:"▲"; }
+
+    .safeharbor {
+      background:rgba(239,68,68,.1);
+      border:1px solid #DC2626;
+      border-radius:var(--radius);
+      padding:var(--space-md);
+    }
+    .safeharbor .hd {
+      color:#FCA5A5;
+      font-weight:600;
+    }
+    .safeharbor ol { margin-left:1.5rem; list-style:decimal; }
+    .safeharbor li { color:#FCA5A5; }
+
+    /* ===== Utilities ===== */
+    .text-muted { color:var(--ink-weak); }
+    section>h2 {
+      border-left:4px solid var(--brand);
+      padding-left:.5rem;
+      margin-bottom:.75rem;
+    }
+
+    footer {
+      text-align:center;
+      color:var(--ink-weak);
+      font-size:.875rem;
+      border-top:1px solid var(--border);
+      padding-top:1rem;
+      margin-top:3rem;
+    }
   </style>
 </head>
+
 <body>
   <div class="max-w-3xl mx-auto p-4 sm:p-8">
 
-    <header class="text-center mb-6">
-      <h1 class="text-3xl font-bold text-blue-500">AI NEUROLOGY CONSULT</h1>
+    <header class="text-center mb-6 border-b border-gray-700 pb-4">
+      <h1 class="text-3xl font-bold text-blue-400 tracking-wide">AI NEUROLOGY CONSULT</h1>
       <p class="text-lg text-gray-300">Board-Certified AI Support for Providers</p>
     </header>
 
@@ -79,12 +247,15 @@
 
 <!-- ================= 1) Intake Section ================= -->
 <section id="section-symptoms" class="panel p-6">
-  <!-- Safe Harbor (added to Intake) -->
-  <details class="panel mb-6 safeharbor">
-    <summary class="font-semibold p-3 cursor-pointer text-lg hd">De-identified Data Only (HIPAA Safe Harbor)</summary>
-    <div class="p-4 border-t" style="border-color:#7F1D1D">
+  <!-- Safe Harbor Notice -->
+  <details class="safeharbor mb-6">
+    <summary class="font-semibold text-lg text-red-300 flex items-center gap-2">
+      <span class="inline-block w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
+      De-identified Data Only (HIPAA Safe Harbor)
+    </summary>
+    <div class="p-4 border-t border-red-900 mt-2">
       <p class="font-bold text-red-200 mb-2">Do NOT include any of the following 18 identifiers:</p>
-      <ol class="list-decimal list-inside space-y-1">
+      <ol class="list-decimal list-inside space-y-0.5">
         <li>Names</li>
         <li>All geographic subdivisions smaller than a state (street, city, county, ZIP)</li>
         <li>All elements of dates (except year) related to an individual; all ages &gt; 89</li>
@@ -108,18 +279,19 @@
     </div>
   </details>
 
-  <div class="flex justify-between items-center mb-3">
-    <h2 class="text-xl font-semibold">1) De-identified Intake</h2>
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-semibold border-l-4 border-blue-500 pl-2">1) De-identified Intake</h2>
     <button type="button" id="start-over-1" class="btn btn-back">Start Over</button>
   </div>
 
   <div id="error-message-symptoms" class="error-box"></div>
 
-  <form id="symptom-form" novalidate>
-    <label for="initial-symptoms" class="block text-sm font-medium text-gray-300 mb-1">Chief Complaint &amp; HPI:</label>
+  <form id="symptom-form" novalidate class="space-y-4">
+    <label for="initial-symptoms" class="block text-sm font-medium text-gray-300">Chief Complaint &amp; HPI:</label>
     <textarea id="initial-symptoms" rows="5" class="input" placeholder="e.g., Adult with sudden severe headache… CT head negative."></textarea>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+    <p class="text-sm text-gray-400 font-medium mt-6 mb-1">Past History &amp; Current Medications</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <label for="pmh" class="block text-sm font-medium text-gray-300 mb-1">PMH:</label>
         <textarea id="pmh" rows="2" class="input" placeholder="HTN, HLD, Migraine…"></textarea>
@@ -138,7 +310,7 @@
       </div>
     </div>
 
-    <div class="mt-4">
+    <div>
       <label for="ros" class="block text-sm font-medium text-gray-300 mb-1">Review of Systems (pertinent):</label>
       <textarea id="ros" rows="3" class="input" placeholder="Neuro: …; CV: …; Resp: …; ID: …"></textarea>
     </div>
@@ -147,15 +319,15 @@
     <div class="mt-6">
       <p class="block text-sm font-medium text-gray-300 mb-2">Consult Source (who is consulting Neurology):</p>
       <div id="consult-source-cards" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <button type="button" class="card-option" data-value="Outpatient" aria-pressed="false" tabindex="0">
+        <button type="button" class="card-option" data-value="Outpatient" aria-pressed="false">
           <h4 class="text-lg font-semibold text-white">Outpatient</h4>
           <p class="text-gray-300 text-sm">Clinic / PCM</p>
         </button>
-        <button type="button" class="card-option" data-value="Inpatient" aria-pressed="false" tabindex="0">
+        <button type="button" class="card-option" data-value="Inpatient" aria-pressed="false">
           <h4 class="text-lg font-semibold text-white">Inpatient</h4>
           <p class="text-gray-300 text-sm">Ward / ICU</p>
         </button>
-        <button type="button" class="card-option" data-value="ER" aria-pressed="false" tabindex="0">
+        <button type="button" class="card-option" data-value="ER" aria-pressed="false">
           <h4 class="text-lg font-semibold text-white">ER</h4>
           <p class="text-gray-300 text-sm">Emergency Department</p>
         </button>
@@ -163,12 +335,11 @@
       <input type="hidden" id="consult-source" value="">
     </div>
 
-    <button type="button" id="example-complaint-btn" class="mt-4 text-sm text-blue-300 hover:underline">
-      Use example: “30s with unilateral throbbing headache with aura…”
-    </button>
-
-    <div class="flex flex-wrap gap-3 mt-4">
-      <button type="submit" class="btn btn-primary">Get Intake Questions</button>
+    <div class="flex justify-center gap-4 mt-6 pt-3 border-t border-gray-700">
+      <button type="button" id="example-complaint-btn" class="btn btn-secondary">See Example Case</button>
+      <button type="submit" class="btn btn-primary scale-105 shadow-lg ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-900">
+        Start Intake Questions
+      </button>
       <button type="button" id="start-over-1b" class="btn btn-back">Start Over</button>
     </div>
   </form>
@@ -177,11 +348,14 @@
 <!-- ================= 2) Questions ================= -->
 <section id="section-intake-questions" class="panel p-6 mt-6 hidden">
   <!-- Safe Harbor -->
-  <details class="panel mb-6 safeharbor">
-    <summary class="font-semibold p-3 cursor-pointer text-lg hd">De-identified Data Only (HIPAA Safe Harbor)</summary>
-    <div class="p-4 border-t" style="border-color:#7F1D1D">
+  <details class="safeharbor mb-6">
+    <summary class="font-semibold text-lg text-red-300 flex items-center gap-2">
+      <span class="inline-block w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
+      De-identified Data Only (HIPAA Safe Harbor)
+    </summary>
+    <div class="p-4 border-t border-red-900 mt-2">
       <p class="font-bold text-red-200 mb-2">Do NOT include any of the following 18 identifiers:</p>
-      <ol class="list-decimal list-inside space-y-1">
+      <ol class="list-decimal list-inside space-y-0.5">
         <li>Names</li>
         <li>All geographic subdivisions smaller than a state (street, city, county, ZIP)</li>
         <li>All elements of dates (except year) related to an individual; all ages &gt; 89</li>
@@ -205,37 +379,47 @@
     </div>
   </details>
 
-  <div class="flex justify-between items-center mb-3">
-    <h2 class="text-xl font-semibold">2) AI-Guided Intake (Questions Only)</h2>
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-semibold border-l-4 border-blue-500 pl-2">2) AI-Guided Intake (Questions Only)</h2>
     <div class="flex gap-2">
       <button type="button" id="back-to-hpi-btn" class="btn btn-back">&larr; Back</button>
       <button type="button" id="start-over-2" class="btn btn-back">Start Over</button>
     </div>
   </div>
 
-  <p class="text-gray-300 mb-4">Answer the questions. No recommendations on this step.</p>
+  <p class="text-gray-300 mb-4">Answer each field below to complete the AI-guided intake. No recommendations on this step.</p>
   <div id="error-message-intake" class="error-box"></div>
 
-  <div class="mb-3">
-    <label class="block text-sm font-medium text-gray-300 mb-1">Original Intake (context):</label>
+  <div class="mb-4">
+    <label class="block text-sm font-medium text-gray-300 mb-1">Original Intake (Context):</label>
     <div id="original-context-display" class="w-full p-3 bg-gray-900 border border-gray-700 rounded-md text-gray-200 text-sm space-y-1"></div>
   </div>
 
-  <form id="intake-form">
-    <label id="opqrst-question-label" for="opqrst-answer" class="block text-gray-200 mb-1">OPQRST…</label>
-    <textarea id="opqrst-answer" rows="2" class="input mb-3" placeholder="Answer…"></textarea>
+  <form id="intake-form" class="space-y-4">
+    <div>
+      <label id="opqrst-question-label" for="opqrst-answer" class="block text-gray-200 mb-1">OPQRST Details:</label>
+      <textarea id="opqrst-answer" rows="2" class="input" placeholder="Answer…"></textarea>
+    </div>
 
-    <label id="exam-question-label" for="exam-answer" class="block text-gray-200 mb-1">Neurologic exam &amp; vital signs…</label>
-    <textarea id="exam-answer" rows="2" class="input mb-3" placeholder="Answer…"></textarea>
+    <div>
+      <label id="exam-question-label" for="exam-answer" class="block text-gray-200 mb-1">Neurologic Exam &amp; Vital Signs:</label>
+      <textarea id="exam-answer" rows="2" class="input" placeholder="Answer…"></textarea>
+    </div>
 
-    <label id="imaging-question-label" for="imaging-answer" class="block text-gray-200 mb-1">Imaging findings (if any)…</label>
-    <textarea id="imaging-answer" rows="2" class="input mb-3" placeholder="Answer…"></textarea>
+    <div>
+      <label id="imaging-question-label" for="imaging-answer" class="block text-gray-200 mb-1">Imaging Findings (if any):</label>
+      <textarea id="imaging-answer" rows="2" class="input" placeholder="Answer…"></textarea>
+    </div>
 
-    <label id="labs-question-label" for="labs-answer" class="block text-gray-200 mb-1">Pertinent labs (if any)…</label>
-    <textarea id="labs-answer" rows="2" class="input" placeholder="Answer…"></textarea>
+    <div>
+      <label id="labs-question-label" for="labs-answer" class="block text-gray-200 mb-1">Pertinent Labs (if any):</label>
+      <textarea id="labs-answer" rows="2" class="input" placeholder="Answer…"></textarea>
+    </div>
 
-    <div class="flex flex-wrap gap-3 mt-4">
-      <button type="submit" class="btn btn-primary">Get Final Consult</button>
+    <div class="flex justify-center gap-4 mt-6 pt-3 border-t border-gray-700">
+      <button type="submit" class="btn btn-primary scale-105 shadow-lg ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-900">
+        Get Final Consult
+      </button>
       <button type="button" id="back-to-hpi-btn-2" class="btn btn-back">&larr; Back</button>
       <button type="button" id="start-over-2b" class="btn btn-back">Start Over</button>
     </div>
@@ -245,11 +429,14 @@
 <!-- ================= 3) Consult ================= -->
 <section id="section-consult" class="panel p-6 mt-6 hidden">
   <!-- Safe Harbor -->
-  <details class="panel mb-6 safeharbor">
-    <summary class="font-semibold p-3 cursor-pointer text-lg hd">De-identified Data Only (HIPAA Safe Harbor)</summary>
-    <div class="p-4 border-t" style="border-color:#7F1D1D">
+  <details class="safeharbor mb-6">
+    <summary class="font-semibold text-lg text-red-300 flex items-center gap-2">
+      <span class="inline-block w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
+      De-identified Data Only (HIPAA Safe Harbor)
+    </summary>
+    <div class="p-4 border-t border-red-900 mt-2">
       <p class="font-bold text-red-200 mb-2">Do NOT include any of the following 18 identifiers:</p>
-      <ol class="list-decimal list-inside space-y-1">
+      <ol class="list-decimal list-inside space-y-0.5">
         <li>Names</li>
         <li>All geographic subdivisions smaller than a state (street, city, county, ZIP)</li>
         <li>All elements of dates (except year) related to an individual; all ages &gt; 89</li>
@@ -269,24 +456,32 @@
         <li>Full-face photographs and comparable images</li>
         <li>Any other unique identifying number, characteristic, or code</li>
       </ol>
-      <p class="mt-3 text-red-200"><strong>Actual knowledge rule:</strong> Even if the above are removed, do not include any detail that you know could identify the individual.</p>
+      <p class="mt-3 text-red-200">
+        <strong>Actual knowledge rule:</strong> Even if the above are removed, do not include any detail that you know could identify the individual.
+      </p>
     </div>
   </details>
 
-  <div class="flex justify-between items-center mb-3">
-    <h2 class="text-xl font-semibold">3) AI Neurology Consult</h2>
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-semibold border-l-4 border-blue-500 pl-2">3) AI Neurology Consult</h2>
     <div class="flex gap-2">
       <button type="button" id="back-to-intake-btn" class="btn btn-back">&larr; Back</button>
       <button type="button" id="start-over-3" class="btn btn-back">Start Over</button>
     </div>
   </div>
 
-  <div id="consult-output" class="mb-4 min-h-[200px]"><!-- injected --></div>
-
-  <div class="flex flex-wrap gap-3">
-    <button type="button" id="build-note-btn" class="btn btn-primary">Build Final Consult</button>
-    <button type="button" id="copy-consult-btn" class="btn btn-secondary">Copy Consult to Clipboard</button>
+  <div id="consult-output" class="mb-6 min-h-[220px] bg-gray-900 border border-gray-700 rounded-md p-4 text-gray-200 text-sm">
+    <!-- injected AI-generated consult appears here -->
   </div>
+
+  <div class="flex justify-center gap-4 pt-4 border-t border-gray-700">
+    <button type="button" id="build-note-btn" class="btn btn-primary scale-105 shadow-lg ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-900">
+      Build Final Consult
+    </button>
+    <button type="button" id="copy-consult-btn" class="btn btn-secondary">Copy Consult to Clipboard</button>
+    <button type="button" id="start-over-3b" class="btn btn-back">Start Over</button>
+  </div>
+
   <p id="copy-success" class="text-sm text-green-400 text-center mt-2 hidden">Copied!</p>
 </section>
 
@@ -294,7 +489,7 @@
 
   <script>
     /* ================= Config & Schemas ================= */
-    const apiKey = "AIzaSyDz8uUjnzjhpG8BeUlZIB_HuwdhMhAh39g"; // <— set your key securely; do not hardcode in production
+    const apiKey = "AIzaSyCeeKqRRtfkh1-e12tP2sUAe_IL2cEsUbE";
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
     const SYSTEM_PROMPT_QUESTIONS = `
@@ -465,6 +660,7 @@ Do not include any separate “Assessment & Plan” duplicate block.`;
     const startOver2=document.getElementById('start-over-2');
     const startOver2b=document.getElementById('start-over-2b');
     const startOver3=document.getElementById('start-over-3');
+    const startOver3b = document.getElementById('start-over-3b'); // Added this
     const backToIntakeBtn=document.getElementById('back-to-intake-btn');
 
     const consultOutput=document.getElementById('consult-output');
@@ -536,219 +732,317 @@ Do not include any separate “Assessment & Plan” duplicate block.`;
       errorSymptoms.textContent="";
     });
 
-    /* ================= Step 1 → Questions ================= */
-    formSymptoms.addEventListener('submit', async e=>{
-      e.preventDefault();
-      if(!initialSymptoms.value.trim()){
-        errorSymptoms.textContent="Enter a chief complaint/HPI.";
-        errorSymptoms.style.display="block"; return;
-      }
-      if(!consultSourceInput.value){
-        errorSymptoms.textContent="Select a Consult Source.";
-        errorSymptoms.style.display="block"; return;
-      }
-      errorSymptoms.style.display="none";
+  /* ================= STEP 1 → QUESTIONS ================= */
+  formSymptoms.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-      currentPatient={
-        hpi:initialSymptoms.value.trim(),
-        pmh:pmh.value.trim(), psh:psh.value.trim(),
-        allergies:allergies.value.trim(), medications:medications.value.trim(),
-        ros:ros.value.trim(), consult_source:consultSourceInput.value
-      };
+    if (!initialSymptoms.value.trim()) {
+      errorSymptoms.textContent = "Enter a chief complaint/HPI.";
+      errorSymptoms.style.display = "block";
+      return;
+    }
 
-      sectionSymptoms.classList.add('hidden'); setLoading(true,"Generating Intake Questions…");
-      try{
-        const u = `Chief complaint/HPI: ${currentPatient.hpi}
-PMH: ${currentPatient.pmh||'Not provided'}
-PSH: ${currentPatient.psh||'Not provided'}
-Allergies: ${currentPatient.allergies||'Not provided'}
-Medications: ${currentPatient.medications||'Not provided'}
-ROS: ${currentPatient.ros||'Not provided'}
+    if (!consultSourceInput.value) {
+      errorSymptoms.textContent = "Select a Consult Source.";
+      errorSymptoms.style.display = "block";
+      return;
+    }
+
+    errorSymptoms.style.display = "none";
+    currentPatient = {
+      hpi: initialSymptoms.value.trim(),
+      pmh: pmh.value.trim(),
+      psh: psh.value.trim(),
+      allergies: allergies.value.trim(),
+      medications: medications.value.trim(),
+      ros: ros.value.trim(),
+      consult_source: consultSourceInput.value
+    };
+
+    sectionSymptoms.classList.add("hidden");
+    setLoading(true, "Generating Intake Questions…");
+
+    try {
+      const userPrompt = `
+Chief complaint/HPI: ${currentPatient.hpi}
+PMH: ${currentPatient.pmh || "Not provided"}
+PSH: ${currentPatient.psh || "Not provided"}
+Allergies: ${currentPatient.allergies || "Not provided"}
+Medications: ${currentPatient.medications || "Not provided"}
+ROS: ${currentPatient.ros || "Not provided"}
 Consult source: ${currentPatient.consult_source}`;
-        const qJson = await getAiResponse(u,SYSTEM_PROMPT_QUESTIONS,QUESTIONS_SCHEMA);
-        const q = JSON.parse(qJson);
 
-        originalContextDisplay.innerHTML = `
-          <p><strong>Consult source:</strong> ${escapeHtml(currentPatient.consult_source)}</p>
-          <p><strong>HPI:</strong> ${escapeHtml(currentPatient.hpi)}</p>
-          <p><strong>PMH:</strong> ${escapeHtml(currentPatient.pmh||'N/A')}</p>
-          <p><strong>PSH:</strong> ${escapeHtml(currentPatient.psh||'N/A')}</p>
-          <p><strong>Allergies:</strong> ${escapeHtml(currentPatient.allergies||'N/A')}</p>
-          <p><strong>Medications:</strong> ${escapeHtml(currentPatient.medications||'N/A')}</p>
-          <p><strong>ROS:</strong> ${escapeHtml(currentPatient.ros||'N/A')}</p>
-        `;
-        opqrstQuestionLabel.textContent=q.opqrst;
-        examQuestionLabel.textContent=q.exam;
-        imagingQuestionLabel.textContent=q.imaging;
-        labsQuestionLabel.textContent=q.labs;
-        opqrstAnswer.value=examAnswer.value=imagingAnswer.value=labsAnswer.value="";
+      const qJson = await getAiResponse(userPrompt, SYSTEM_PROMPT_QUESTIONS, QUESTIONS_SCHEMA);
+      const q = JSON.parse(qJson);
 
-        setLoading(false); sectionIntake.classList.remove('hidden');
-        window.scrollTo({top:0,behavior:'smooth'});
-      }catch(err){
-        setLoading(false); sectionSymptoms.classList.remove('hidden');
-        errorSymptoms.textContent="Failed to generate questions (check API key/network).";
-        errorSymptoms.style.display="block"; console.error(err);
-      }
-    });
+      originalContextDisplay.innerHTML = `
+        <p><strong>Consult source:</strong> ${escapeHtml(currentPatient.consult_source)}</p>
+        <p><strong>HPI:</strong> ${escapeHtml(currentPatient.hpi)}</p>
+        <p><strong>PMH:</strong> ${escapeHtml(currentPatient.pmh || "N/A")}</p>
+        <p><strong>PSH:</strong> ${escapeHtml(currentPatient.psh || "N/A")}</p>
+        <p><strong>Allergies:</strong> ${escapeHtml(currentPatient.allergies || "N/A")}</p>
+        <p><strong>Medications:</strong> ${escapeHtml(currentPatient.medications || "N/A")}</p>
+        <p><strong>ROS:</strong> ${escapeHtml(currentPatient.ros || "N/A")}</p>
+      `;
 
-    /* ================= Questions → Consult ================= */
-    intakeForm.addEventListener('submit', async e=>{
-      e.preventDefault(); errorIntake.style.display="none";
-      sectionIntake.classList.add('hidden'); setLoading(true,"Consulting Neurologist…");
+      opqrstQuestionLabel.textContent = q.opqrst;
+      examQuestionLabel.textContent = q.exam;
+      imagingQuestionLabel.textContent = q.imaging;
+      labsQuestionLabel.textContent = q.labs;
+      opqrstAnswer.value = examAnswer.value = imagingAnswer.value = labsAnswer.value = "";
 
-      const prompt = `
+      setLoading(false);
+      sectionIntake.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      setLoading(false);
+      sectionSymptoms.classList.remove("hidden");
+      errorSymptoms.textContent = "Failed to generate questions (check API key/network).";
+      errorSymptoms.style.display = "block";
+      console.error(err);
+    }
+  });
+
+  /* ================= QUESTIONS → CONSULT ================= */
+  intakeForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errorIntake.style.display = "none";
+    sectionIntake.classList.add("hidden");
+    setLoading(true, "Consulting Neurologist…");
+
+    const prompt = `
 Intake summary for Neurology:
 Consult source: ${currentPatient.consult_source}
 HPI: ${currentPatient.hpi}
-PMH: ${currentPatient.pmh || 'Not provided'}
-PSH: ${currentPatient.psh || 'Not provided'}
-Allergies: ${currentPatient.allergies || 'Not provided'}
-Medications: ${currentPatient.medications || 'Not provided'}
-ROS: ${currentPatient.ros || 'Not provided'}
+PMH: ${currentPatient.pmh || "Not provided"}
+PSH: ${currentPatient.psh || "Not provided"}
+Allergies: ${currentPatient.allergies || "Not provided"}
+Medications: ${currentPatient.medications || "Not provided"}
+ROS: ${currentPatient.ros || "Not provided"}
 
 Follow-up (answers to questions):
-OPQRST: ${opqrstAnswer.value.trim() || 'Not provided'}
-Neuro exam & VS: ${examAnswer.value.trim() || 'Not provided'}
-Imaging findings: ${imagingAnswer.value.trim() || 'Not provided'}
-Labs: ${labsAnswer.value.trim() || 'Not provided'}
+OPQRST: ${opqrstAnswer.value.trim() || "Not provided"}
+Neuro exam & VS: ${examAnswer.value.trim() || "Not provided"}
+Imaging findings: ${imagingAnswer.value.trim() || "Not provided"}
+Labs: ${labsAnswer.value.trim() || "Not provided"}
 
 Return JSON only per schema.`;
-      try{
-        const resp = await getAiResponse(prompt,SYSTEM_PROMPT_CONSULT,CONSULT_SCHEMA);
-        modelConsult = JSON.parse(resp);
-        renderConsultInteractive(modelConsult);
-        setLoading(false); sectionConsult.classList.remove('hidden');
-        window.scrollTo({top:0,behavior:'smooth'});
-      }catch(err){
-        console.error(err); setLoading(false); sectionIntake.classList.remove('hidden');
-        errorIntake.textContent="Failed to get final consult (check API key/network).";
-        errorIntake.style.display="block";
-      }
-    });
 
-    /* ================= Render Consult ================= */
-    function listItems(items, groupKey){
-      if(!Array.isArray(items)) return "";
-      return items.map(it=>`
-        <label class="rec-row flex items-start gap-3">
-          <input type="checkbox" class="rec-checkbox" data-group="${groupKey}" data-id="${escapeHtml(it.id)}" ${it.selected?'checked':''}>
-          <span class="leading-snug text-gray-100">
-            ${escapeHtml(it.text)}${it.strength?` <em class="text-gray-300">(strength: ${escapeHtml(it.strength)})</em>`:''}
-            ${it.alternatives?.length?`<br><small class="text-gray-400">Alternatives: ${escapeHtml(it.alternatives.join(' | '))}</small>`:''}
-          </span>
-        </label>
-      `).join('');
+    try {
+      const resp = await getAiResponse(prompt, SYSTEM_PROMPT_CONSULT, CONSULT_SCHEMA);
+      modelConsult = JSON.parse(resp);
+      renderConsultInteractive(modelConsult);
+      setLoading(false);
+      sectionConsult.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+      sectionIntake.classList.remove("hidden");
+      errorIntake.textContent = "Failed to get final consult (check API key/network).";
+      errorIntake.style.display = "block";
     }
+  });
 
-    function renderConsultInteractive(c){
-      const el=consultOutput; if(!el) return;
-      const hlocTrue=c.higher_level_of_care?.er || c.higher_level_of_care?.admit;
-      const hlocCls=`hloc ${hlocTrue?'alert':'ok'}`;
-      const hlocTitle=hlocTrue?'Higher Level of Care Recommended':'Higher Level of Care Not Indicated';
-      const dest=c.higher_level_of_care?.destination?` — Destination: ${escapeHtml(c.higher_level_of_care.destination)}`:'';
+  /* ================= RENDER CONSULT ================= */
+  function listItems(items, groupKey) {
+    if (!Array.isArray(items)) return "";
+    return items
+      .map(
+        (it) => `
+        <label class="rec-row flex items-start gap-3">
+          <input type="checkbox" class="rec-checkbox" data-group="${groupKey}" data-id="${escapeHtml(it.id)}" ${
+          it.selected ? "checked" : ""
+        }>
+          <span class="leading-snug text-gray-100">
+            ${escapeHtml(it.text)}${
+          it.strength ? ` <em class="text-gray-300">(strength: ${escapeHtml(it.strength)})</em>` : ""
+        }
+            ${
+              it.alternatives?.length
+                ? `<br><small class="text-gray-400">Alternatives: ${escapeHtml(
+                    it.alternatives.join(" | ")
+                  )}</small>`
+                : ""
+            }
+          </span>
+        </label>`
+      )
+      .join("");
+  }
 
-      const ddxOther=(c.ddx.other||[]).slice(0,5);
-      const otherQuick = ddxOther.length ? `
+  function renderConsultInteractive(c) {
+    const el = consultOutput;
+    if (!el) return;
+
+    const hlocTrue = c.higher_level_of_care?.er || c.higher_level_of_care?.admit;
+    const hlocCls = `hloc ${hlocTrue ? "alert" : "ok"}`;
+    const hlocTitle = hlocTrue
+      ? "Higher Level of Care Recommended"
+      : "Higher Level of Care Not Indicated";
+    const dest = c.higher_level_of_care?.destination
+      ? ` — Destination: ${escapeHtml(c.higher_level_of_care.destination)}`
+      : "";
+
+    const ddxOther = (c.ddx.other || []).slice(0, 5);
+    const otherQuick = ddxOther.length
+      ? `
         <div class="mt-2">
           <strong>Other possible diagnoses to consider:</strong>
-          ${ddxOther.map((o,i)=>`
+          ${ddxOther
+            .map(
+              (o, i) => `
             <label class="rec-row flex items-start gap-3">
               <input type="checkbox" class="rec-checkbox" data-group="ddx.other.consider" data-id="other_${i}" checked>
               <span class="text-gray-100">${escapeHtml(o.dx)} — ${o.probability_pct}%</span>
-            </label>
-          `).join('')}
-        </div>` : '';
+            </label>`
+            )
+            .join("")}
+        </div>`
+      : "";
 
-      el.innerHTML = `
-        <h3>ASSESSMENT</h3>
-        <p class="text-gray-100">${escapeHtml(c.impression)}</p>
+    el.innerHTML = `
+      <h3>ASSESSMENT</h3>
+      <p class="text-gray-100">${escapeHtml(c.impression)}</p>
 
-        <div class="${hlocCls}">
-          <strong>${hlocTitle}</strong>${dest}
-          <p class="mt-1 text-gray-100"><em>Rationale:</em> ${escapeHtml(c.higher_level_of_care?.rationale || '')}</p>
-        </div>
+      <div class="${hlocCls}">
+        <strong>${hlocTitle}</strong>${dest}
+        <p class="mt-1 text-gray-100"><em>Rationale:</em> ${escapeHtml(
+          c.higher_level_of_care?.rationale || ""
+        )}</p>
+      </div>
 
-        <h3>DIFFERENTIAL DIAGNOSIS</h3>
-        <p class="text-gray-100"><strong>Most likely:</strong> ${escapeHtml(c.ddx.most_likely.dx)} — ${c.ddx.most_likely.probability_pct}% (confidence: ${escapeHtml(c.ddx.most_likely.confidence)})</p>
-        <p class="text-gray-100"><em>Why:</em> ${escapeHtml(c.ddx.most_likely.rationale_for)}</p>
-        <p class="text-gray-100"><em>Why not:</em> ${escapeHtml(c.ddx.most_likely.rationale_against)}</p>
+      <h3>DIFFERENTIAL DIAGNOSIS</h3>
+      <p class="text-gray-100"><strong>Most likely:</strong> ${escapeHtml(
+        c.ddx.most_likely.dx
+      )} — ${c.ddx.most_likely.probability_pct}% (confidence: ${escapeHtml(
+      c.ddx.most_likely.confidence
+    )})</p>
+      <p class="text-gray-100"><em>Why:</em> ${escapeHtml(c.ddx.most_likely.rationale_for)}</p>
+      <p class="text-gray-100"><em>Why not:</em> ${escapeHtml(c.ddx.most_likely.rationale_against)}</p>
 
-        <p class="mt-2 text-gray-100"><strong>Must not miss:</strong></p>
-        ${c.ddx.must_not_miss.map(m=>`
+      <p class="mt-2 text-gray-100"><strong>Must not miss:</strong></p>
+      ${c.ddx.must_not_miss
+        .map(
+          (m) => `
           <div class="ml-2">
-            <p class="text-gray-100">${escapeHtml(m.dx)} — ${m.probability_pct}% (confidence: ${escapeHtml(m.confidence)})</p>
+            <p class="text-gray-100">${escapeHtml(m.dx)} — ${m.probability_pct}% (confidence: ${escapeHtml(
+              m.confidence
+            )})</p>
             <p class="text-gray-100"><em>Why:</em> ${escapeHtml(m.rationale_for)}</p>
             <p class="text-gray-100"><em>Why not:</em> ${escapeHtml(m.rationale_against)}</p>
-            <p class="text-gray-100"><em>Consequence if missed:</em> ${escapeHtml(m.consequence_of_miss)}</p>
-          </div>
-        `).join('')}
+            <p class="text-gray-100"><em>Consequence if missed:</em> ${escapeHtml(
+              m.consequence_of_miss
+            )}</p>
+          </div>`
+        )
+        .join("")}
 
-        ${otherQuick}
+      ${otherQuick}
 
-        <h3>PLAN (select items to include)</h3>
+      <h3>PLAN (select items to include)</h3>
 
-        <strong>Immediate actions</strong>
-        <div>${listItems(c.plan.immediate_actions,'immediate_actions')}</div>
+      <strong>Immediate actions</strong>
+      <div>${listItems(c.plan.immediate_actions, "immediate_actions")}</div>
 
-        <strong class="block mt-2">Plan – Labs</strong>
-        <p class="text-sm italic mb-1 text-gray-300">Top recommendation: ${escapeHtml(c.plan.workup.labs_top_recommendation || '')}</p>
-        <div>${listItems(c.plan.workup.labs,'workup.labs')}</div>
+      <strong class="block mt-2">Plan – Labs</strong>
+      <p class="text-sm italic mb-1 text-gray-300">Top recommendation: ${escapeHtml(
+        c.plan.workup.labs_top_recommendation || ""
+      )}</p>
+      <div>${listItems(c.plan.workup.labs, "workup.labs")}</div>
 
-        <strong class="block mt-2">Plan – Imaging</strong>
-        <p class="text-sm italic mb-1 text-gray-300">Top recommendation: ${escapeHtml(c.plan.workup.imaging_top_recommendation || '')}</p>
-        <div>${listItems(c.plan.workup.imaging,'workup.imaging')}</div>
+      <strong class="block mt-2">Plan – Imaging</strong>
+      <p class="text-sm italic mb-1 text-gray-300">Top recommendation: ${escapeHtml(
+        c.plan.workup.imaging_top_recommendation || ""
+      )}</p>
+      <div>${listItems(c.plan.workup.imaging, "workup.imaging")}</div>
 
-        <strong class="block mt-2">Plan – Diagnostics</strong>
-        <p class="text-sm italic mb-1 text-gray-300">Top recommendation: ${escapeHtml(c.plan.workup.diagnostics_top_recommendation || '')}</p>
-        <div>${listItems(c.plan.workup.diagnostics,'workup.diagnostics')}</div>
+      <strong class="block mt-2">Plan – Diagnostics</strong>
+      <p class="text-sm italic mb-1 text-gray-300">Top recommendation: ${escapeHtml(
+        c.plan.workup.diagnostics_top_recommendation || ""
+      )}</p>
+      <div>${listItems(c.plan.workup.diagnostics, "workup.diagnostics")}</div>
 
-        <strong class="block mt-2">Initial management (≥5 options)</strong>
-        <div>${listItems(c.plan.management_initial,'management_initial')}</div>
+      <strong class="block mt-2">Initial management (≥5 options)</strong>
+      <div>${listItems(c.plan.management_initial, "management_initial")}</div>
 
-        <strong class="block mt-2">Consults</strong>
-        <div>${listItems(c.plan.consults,'consults')}</div>
+      <strong class="block mt-2">Consults</strong>
+      <div>${listItems(c.plan.consults, "consults")}</div>
 
-        <strong class="block mt-2">Follow-up</strong>
-        <div>${listItems(c.plan.follow_up,'follow_up')}</div>
+      <strong class="block mt-2">Follow-up</strong>
+      <div>${listItems(c.plan.follow_up, "follow_up")}</div>
 
-        <strong class="block mt-2">Military profile</strong>
-        <div class="mb-2 p-3 border border-gray-700 rounded-lg">
-          <label class="flex items-center gap-2 mb-2">
-            <input type="checkbox" id="profile-recommend" ${c.plan.military_profile.recommend_profile ? 'checked':''}>
-            <span class="text-gray-100">Recommend profile</span>
-          </label>
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-gray-100">Length (days):</span>
-            <button type="button" id="profile-len-dec" class="btn btn-secondary py-1 px-2" aria-label="Decrease profile length">−</button>
-            <span id="profile-length" data-value="${Number(c.plan.military_profile.length_days)||7}" class="px-2 text-gray-100">${Number(c.plan.military_profile.length_days)||7}</span>
-            <button type="button" id="profile-len-inc" class="btn btn-secondary py-1 px-2" aria-label="Increase profile length">+</button>
-          </div>
-          <div class="pl-4">
-            <p class="mb-3 text-gray-100"><em>Commander instructions:</em><br>
-              <span id="profile-commander" data-value="${escapeHtml(c.plan.military_profile.commander_instructions)}">${escapeHtml(c.plan.military_profile.commander_instructions)}</span>
-            </p>
-            <p class="mb-1 text-gray-100"><em>Service member instructions:</em><br>
-              <span id="profile-sm" data-value="${escapeHtml(c.plan.military_profile.service_member_instructions)}">${escapeHtml(c.plan.military_profile.service_member_instructions)}</span>
-            </p>
-          </div>
+      <strong class="block mt-2">Military profile</strong>
+      <div class="mb-2 p-3 border border-gray-700 rounded-lg">
+        <label class="flex items-center gap-2 mb-2">
+          <input type="checkbox" id="profile-recommend" ${
+            c.plan.military_profile.recommend_profile ? "checked" : ""
+          }>
+          <span class="text-gray-100">Recommend profile</span>
+        </label>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-gray-100">Length (days):</span>
+          <button
+            type="button"
+            id="profile-len-dec"
+            class="btn btn-secondary py-1 px-2"
+            aria-label="Decrease profile length">−</button>
+          <span
+            id="profile-length"
+            data-value="${Number(c.plan.military_profile.length_days) || 7}"
+            class="px-2 text-gray-100">${Number(c.plan.military_profile.length_days) || 7}</span>
+          <button
+            type="button"
+            id="profile-len-inc"
+            class="btn btn-secondary py-1 px-2"
+            aria-label="Increase profile length">+</button>
         </div>
+        <div class="pl-4">
+          <p class="mb-3 text-gray-100"><em>Commander instructions:</em><br>
+            <span id="profile-commander" data-value="${escapeHtml(
+              c.plan.military_profile.commander_instructions
+            )}">${escapeHtml(c.plan.military_profile.commander_instructions)}</span>
+          </p>
+          <p class="mb-1 text-gray-100"><em>Service member instructions:</em><br>
+            <span id="profile-sm" data-value="${escapeHtml(
+              c.plan.military_profile.service_member_instructions
+            )}">${escapeHtml(c.plan.military_profile.service_member_instructions)}</span>
+          </p>
+        </div>
+      </div>
 
-        <h3>References</h3>
-        <ol class="list-decimal list-inside">
-          ${c.references.map((r,i)=>`<li>[${i+1}] ${escapeHtml(r.citation_apa)} <a href="${r.url}" target="_blank">${r.url}</a></li>`).join('')}
-        </ol>
-      `;
+      <h3>References</h3>
+      <ol class="list-decimal list-inside">
+        ${c.references
+          .map(
+            (r, i) =>
+              `<li>[${i + 1}] ${escapeHtml(r.citation_apa)} <a href="${r.url}" target="_blank" class="text-blue-400 hover:underline">${r.url}</a></li>`
+          )
+          .join("")}
+      </ol>
+    `;
 
-      // Profile length controls
-      document.getElementById('profile-len-inc').addEventListener('click', ()=>{
-        const sp=document.getElementById('profile-length'); const v=Number(sp.dataset.value)||0; sp.dataset.value=String(v+1); sp.textContent=String(v+1);
+    // Profile length controls
+    document
+      .getElementById("profile-len-inc")
+      .addEventListener("click", () => {
+        const sp = document.getElementById("profile-length");
+        const v = Number(sp.dataset.value) || 0;
+        sp.dataset.value = String(v + 1);
+        sp.textContent = String(v + 1);
       });
-      document.getElementById('profile-len-dec').addEventListener('click', ()=>{
-        const sp=document.getElementById('profile-length'); const v=Number(sp.dataset.value)||0; const nv=Math.max(0,v-1); sp.dataset.value=String(nv); sp.textContent=String(nv);
-      });
-    }
 
+    document
+      .getElementById("profile-len-dec")
+      .addEventListener("click", () => {
+        const sp = document.getElementById("profile-length");
+        const v = Number(sp.dataset.value) || 0;
+        const nv = Math.max(0, v - 1);
+        sp.dataset.value = String(nv);
+        sp.textContent = String(nv);
+      });
+  }
+  
     /* ================= Build + Copy ================= */
     function itemsByIds(items, ids){ const map=new Map((items||[]).map(i=>[i.id,i])); return ids.map(id=>map.get(id)).filter(Boolean); }
     function getChecked(group){ return [...document.querySelectorAll(`.rec-checkbox[data-group="${group}"]`)].filter(cb=>cb.checked).map(cb=>cb.dataset.id); }
@@ -759,7 +1053,7 @@ Return JSON only per schema.`;
         immediate: itemsByIds(c.plan.immediate_actions, getChecked('immediate_actions')),
         labs: itemsByIds(c.plan.workup.labs, getChecked('workup.labs')),
         imaging: itemsByIds(c.plan.workup.imaging, getChecked('workup.imaging')),
-        diagnostics: itemsByIds(c.plan.workup.diagnostics, getChecked('workup.diagnostics')),
+        diagnostics: itemsByIds(c.plan.workup.diagnostics, getChecked('diagnostics')),
         mgmt: itemsByIds(c.plan.management_initial, getChecked('management_initial')),
         consults: itemsByIds(c.plan.consults, getChecked('consults')),
         follow: itemsByIds(c.plan.follow_up, getChecked('follow_up')),
@@ -810,6 +1104,22 @@ Return JSON only per schema.`;
       lines.push("• Follow-up:"); sel.follow.forEach(i=>lines.push(`  - ${i.text}${i.strength?` (strength: ${i.strength})`:""}`));
       lines.push("");
 
+      // Military Profile
+      const recProfile = document.getElementById('profile-recommend')?.checked;
+      if (recProfile) {
+        lines.push("MILITARY PROFILE:");
+        const len = document.getElementById('profile-length')?.dataset.value || '0';
+        lines.push(`• Recommended: Yes`);
+        lines.push(`• Length (days): ${len}`);
+        lines.push(`• Commander instructions: ${document.getElementById('profile-commander')?.dataset.value || ''}`);
+        lines.push(`• Service member instructions: ${document.getElementById('profile-sm')?.dataset.value || ''}`);
+      } else {
+        lines.push("MILITARY PROFILE:");
+        lines.push("• Recommended: No");
+      }
+      lines.push("");
+
+
       lines.push("REFERENCES:");
       (c.references||[]).forEach((r,i)=>lines.push(`${i+1}. ${r.citation_apa} ${r.url}`));
       return lines.join("\n");
@@ -831,29 +1141,33 @@ Return JSON only per schema.`;
       }catch(e){ console.error("Clipboard error", e); }
     });
 
-    // Navigation
+    // Navigation helpers
     function resetAll(){
       initialSymptoms.value=pmh.value=psh.value=allergies.value=medications.value=ros.value="";
-      consultSourceInput.value=""; clearCards();
+      consultSourceInput.value="";
+      clearCards();
       opqrstAnswer.value=examAnswer.value=imagingAnswer.value=labsAnswer.value="";
       modelConsult=null; currentPatient={};
-      document.getElementById('error-message-symptoms').style.display="none";
-      const emi=document.getElementById('error-message-intake'); if(emi) emi.style.display="none";
+      errorSymptoms.style.display="none";
+      errorIntake.style.display="none";
       sectionConsult.classList.add('hidden');
       sectionIntake.classList.add('hidden');
       sectionSymptoms.classList.remove('hidden');
       consultOutput.innerHTML="";
       window.scrollTo({top:0,behavior:'smooth'});
     }
-    document.getElementById('start-over-1').addEventListener('click',resetAll);
-    document.getElementById('start-over-1b').addEventListener('click',resetAll);
-    document.getElementById('start-over-2').addEventListener('click',resetAll);
-    document.getElementById('start-over-2b').addEventListener('click',resetAll);
-    document.getElementById('start-over-3').addEventListener('click',resetAll);
+    startOver1.addEventListener('click',resetAll);
+    startOver1b.addEventListener('click',resetAll);
+    startOver2.addEventListener('click',resetAll);
+    startOver2b.addEventListener('click',resetAll);
+    startOver3.addEventListener('click',resetAll);
+    startOver3b.addEventListener('click',resetAll); // Added this
 
-    document.getElementById('back-to-hpi-btn').addEventListener('click',()=>{sectionIntake.classList.add('hidden');sectionSymptoms.classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'})});
-    document.getElementById('back-to-hpi-btn-2').addEventListener('click',()=>{sectionIntake.classList.add('hidden');sectionSymptoms.classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'})});
-    document.getElementById('back-to-intake-btn').addEventListener('click',()=>{sectionConsult.classList.add('hidden');sectionIntake.classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'})});
+    backToHpiBtn.addEventListener('click',()=>{sectionIntake.classList.add('hidden');sectionSymptoms.classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'})});
+    backToHpiBtn2.addEventListener('click',()=>{sectionIntake.classList.add('hidden');sectionSymptoms.classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'})});
+    backToIntakeBtn.addEventListener('click',()=>{sectionConsult.classList.add('hidden');sectionIntakc.classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'})});
   </script>
+
 </body>
 </html>
+
